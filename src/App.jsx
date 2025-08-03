@@ -1,23 +1,24 @@
 import React, { useState } from "react";
-import quizData from "./data";
+import quizzes from "./data"; // 👈 updated import
 import Question from "./components/Question";
 import Result from "./components/Result";
 import "./App.css"; // Assuming you have some styles in App.css
 
 function App() {
+  const [selectedQuiz, setSelectedQuiz] = useState(null);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [score, setScore] = useState(0);
   const [isFinished, setIsFinished] = useState(false);
-  const [showStart, setShowStart] = useState(true); // 👈 for start screen
+  const [showStart, setShowStart] = useState(true);
 
   const handleAnswer = (selectedOption) => {
-    const currentQuestion = quizData[currentIndex];
+    const currentQuestion = quizzes[selectedQuiz][currentIndex];
     if (selectedOption === currentQuestion.answer) {
       setScore(score + 1);
     }
 
     const nextIndex = currentIndex + 1;
-    if (nextIndex < quizData.length) {
+    if (nextIndex < quizzes[selectedQuiz].length) {
       setCurrentIndex(nextIndex);
     } else {
       setIsFinished(true);
@@ -25,24 +26,30 @@ function App() {
   };
 
   const restartQuiz = () => {
+    setSelectedQuiz(null);
     setCurrentIndex(0);
     setScore(0);
     setIsFinished(false);
-    setShowStart(true); // 👈 back to start screen
+    setShowStart(true);
   };
 
-  // ✅ Start screen
+  const startQuiz = (quizKey) => {
+    setSelectedQuiz(quizKey);
+    setShowStart(false);
+  };
+
+  // ✅ Start screen with multiple tasks
   if (showStart) {
     return (
       <div className="start-screen">
         <img
-          src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png"
+          src="https://tse3.mm.bing.net/th/id/OIP.6RGDI0BWoi2OiaFE5hceMQHaHa?pid=Api&P=0&h=180&w=180"
           alt="Quiz"
           className="start-image"
         />
-        <h2>Welcome to the Quiz!</h2>
-        <p>Test your knowledge with our fun quiz.</p>
-        <button onClick={() => setShowStart(false)}>Start Quiz</button>
+        <h2>Select a Quiz</h2>
+        <button onClick={() => startQuiz("general")}>🧠 General Knowledge</button>
+        <button onClick={() => startQuiz("programming")}>💻 Programming</button>
       </div>
     );
   }
@@ -51,10 +58,10 @@ function App() {
     <div className="app">
       <h1>🧠 Quiz App</h1>
       {isFinished ? (
-        <Result score={score} total={quizData.length} restartQuiz={restartQuiz} />
+        <Result score={score} total={quizzes[selectedQuiz].length} restartQuiz={restartQuiz} />
       ) : (
         <Question
-          questionData={quizData[currentIndex]}
+          questionData={quizzes[selectedQuiz][currentIndex]}
           handleAnswer={handleAnswer}
           currentIndex={currentIndex}
         />
